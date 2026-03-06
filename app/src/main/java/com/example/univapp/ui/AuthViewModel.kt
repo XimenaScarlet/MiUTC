@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.univapp.data.Session
 import com.example.univapp.data.SessionManager
+import com.example.univapp.data.hasInternet
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.ktx.firestore
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -51,9 +53,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         auth.addAuthStateListener(authListener)
+        loadSavedSession()
+    }
+
+    private fun loadSavedSession() {
         viewModelScope.launch {
             val session = sessionManager.getSession()
-            if (session != null && auth.currentUser == null) {
+            if (session != null) {
                 _offlineSession.value = session
                 _isAdmin.value = session.isAdmin
             }
@@ -65,116 +71,98 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         auth.removeAuthStateListener(authListener)
     }
 
-    private fun validateInput(identifier: String, password: String?): String? {
-        if (identifier.isBlank()) return "La matrícula o correo no puede estar vacío."
-        if (password != null && password.length < 6) return "La contraseña debe tener al menos 6 caracteres."
-        
-        val email = normalizeIdentifier(identifier)
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            return "El formato del identificador es inválido."
-        }
-        return null
-    }
-
-    private fun normalizeIdentifier(idOrEmail: String): String {
-        val id = idOrEmail.trim()
-        return if (id.contains("@")) id else "$id@alumno.utc.edu.mx"
-    }
-
     private fun refreshAdminFlag() {
         val u = auth.currentUser ?: return
         u.getIdToken(true)
             .addOnSuccessListener { res ->
                 if (auth.currentUser == null) return@addOnSuccessListener
-                
                 val claims = res.claims
                 val admin = (claims["admin"] as? Boolean == true) ||
                             ((claims["role"] as? String)?.equals("admin", true) == true)
-
                 _isAdmin.value = admin
                 viewModelScope.launch {
                     sessionManager.saveSession(u.uid, u.email ?: "", admin)
-                    _offlineSession.value = null
                 }
             }
-            .addOnFailureListener { 
-                if (auth.currentUser != null) _isAdmin.value = false 
-            }
+            .addOnFailureListener { if (auth.currentUser != null) _isAdmin.value = false }
     }
 
     private fun mapError(th: Throwable?): String {
         return when (th) {
             is FirebaseNetworkException -> "Sin conexión a internet."
-            is FirebaseAuthInvalidCredentialsException -> "Credenciales inválidas."
+            is FirebaseAuthInvalidCredentialsException -> "Credenciales inválidas (matrícula o contraseña incorrecta)."
             is FirebaseAuthInvalidUserException -> "La cuenta no existe o ha sido deshabilitada."
-            else -> "Error de autenticación. Intente de nuevo."
+            else -> "Error de acceso: ${th?.localizedMessage ?: "Intente de nuevo"}"
         }
     }
 
     fun login(identifier: String, password: String, onError: (String?) -> Unit = {}) {
-        val validationMsg = validateInput(identifier, password)
-        if (validationMsg != null) {
-            _error.value = validationMsg
-            onError(validationMsg)
+        if (identifier.isBlank() || password.isBlank()) {
+            _error.value = "Ingresa tus datos completos."
             return
         }
 
-        val email = normalizeIdentifier(identifier)
-        _loading.value = true
-        _error.value = null
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
 
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
+            try {
+                // LÓGICA DE LOGIN DUAL:
+                val finalEmail = if (!Patterns.EMAIL_ADDRESS.matcher(identifier).matches()) {
+                    val snapshot = db.collection("alumnos")
+                        .whereEqualTo("matricula", identifier.trim())
+                        .get()
+                        .await()
+                    
+                    if (snapshot.isEmpty) {
+                        throw FirebaseAuthInvalidUserException("ERROR", "Matrícula no registrada.")
+                    }
+                    snapshot.documents.first().getString("correo") ?: throw Exception("Cuenta sin correo.")
+                } else {
+                    identifier.trim()
+                }
+
+                auth.signInWithEmailAndPassword(finalEmail, password).await()
                 _loading.value = false
-            }
-            .addOnFailureListener { e ->
+
+            } catch (e: Exception) {
                 _loading.value = false
                 val msg = mapError(e)
                 _error.value = msg
                 onError(msg)
             }
+        }
     }
 
-    fun sendPasswordResetLink(matricula: String, callback: (ok: Boolean, msg: String?) -> Unit) {
-        val validationMsg = validateInput(matricula, null)
-        if (validationMsg != null) {
-            callback(false, validationMsg)
-            return
-        }
-
-        _loading.value = true
-        _error.value = null
-
-        db.collection("alumnos").document(matricula).get()
-            .addOnSuccessListener { doc ->
-                if (!doc.exists()) {
-                    _loading.value = false
-                    callback(false, "La matrícula no existe en nuestros registros.")
-                    return@addOnSuccessListener
+    fun sendPasswordResetLink(matriculaOrEmail: String, callback: (ok: Boolean, msg: String?) -> Unit) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val email = if (!Patterns.EMAIL_ADDRESS.matcher(matriculaOrEmail).matches()) {
+                    val snapshot = db.collection("alumnos")
+                        .whereEqualTo("matricula", matriculaOrEmail.trim())
+                        .get()
+                        .await()
+                    if (snapshot.isEmpty) throw Exception("Matrícula no encontrada.")
+                    snapshot.documents.first().getString("correo") ?: throw Exception("Sin correo asociado.")
+                } else {
+                    matriculaOrEmail.trim()
                 }
 
-                val email = doc.getString("correo") ?: normalizeIdentifier(matricula)
-                auth.sendPasswordResetEmail(email)
-                    .addOnCompleteListener { task ->
-                        _loading.value = false
-                        if (task.isSuccessful) {
-                            callback(true, "Te enviamos un correo para restablecer tu contraseña.")
-                        } else {
-                            callback(false, "No se pudo procesar la solicitud en este momento.")
-                        }
-                    }
-            }
-            .addOnFailureListener { e ->
+                auth.sendPasswordResetEmail(email).await()
+                callback(true, "Se ha enviado un enlace a su correo institucional.")
+            } catch (e: Exception) {
+                callback(false, e.localizedMessage ?: "Error al enviar el correo.")
+            } finally {
                 _loading.value = false
-                callback(false, "Error de conexión: ${e.message}")
             }
+        }
     }
 
     fun logout() {
         _user.value = null
         _offlineSession.value = null
         _isAdmin.value = null
-        
         viewModelScope.launch {
             sessionManager.clearSession()
             auth.signOut()

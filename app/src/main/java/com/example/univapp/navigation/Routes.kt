@@ -1,8 +1,5 @@
 package com.example.univapp.navigation
 
-/**
- * Nombres únicos de rutas para Navigation Compose.
- */
 object Routes {
     const val LOGIN = "login"
     const val HOME = "home"
@@ -53,12 +50,12 @@ object Routes {
     const val ADMIN_ANNOUNCEMENTS = "admin_avisos"
     const val ADMIN_SOS_MAP = "admin_sos_map"
     
-    const val ADMIN_ADD_ALUMNO = "admin_add_alumno"
+    // MODIFICADO: Ahora requiere groupId y carreraId
+    const val ADMIN_ADD_ALUMNO = "admin_add_alumno/{carreraId}/{groupId}"
     const val ADMIN_EDIT_ALUMNO = "admin_edit_alumno/{alumnoId}"
     const val ADMIN_IMPORT_ALUMNOS = "admin_import_alumnos"
     
     const val ADMIN_ADD_PROFESOR = "admin_add_profesor/{carreraId}"
-    
     const val ADMIN_ADD_MATERIA = "admin_add_materia/{carreraId}/{grupoId}"
     const val ADMIN_IMPORT_MATERIAS = "admin_import_materias"
     const val ADMIN_MATERIA_DETAIL = "admin_materia_detail/{materiaId}"
