@@ -22,15 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.univapp.location.LocationHelper
 
 @Composable
 fun SOSActiveScreen(
-    viewModel: SOSViewModel,
+    viewModel: SOSViewModel = hiltViewModel(),
     onCancel: () -> Unit = {},
     onCallEmergencies: () -> Unit = {},
-    settingsVm: SettingsViewModel = viewModel()
+    settingsVm: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val dark by settingsVm.darkMode.collectAsState()
@@ -43,7 +43,6 @@ fun SOSActiveScreen(
     val badgeText = if (dark) Color(0xFFE2E8F0) else Color(0xFF334155)
     val pulseColor = if (dark) Color(0xFFEF4444).copy(alpha = 0.2f) else Color(0xFFFFE4E6)
 
-    // Launcher para pedir permisos
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -64,10 +63,14 @@ fun SOSActiveScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp).padding(top = 20.dp, bottom = 40.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding() // CORRECCIÓN: Padding superior
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 TextButton(onClick = { viewModel.stopTracking(); onCancel() }, modifier = Modifier.align(Alignment.CenterEnd)) {
                     Text(text = "Detener SOS", color = Color(0xFFEF4444), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
@@ -75,7 +78,6 @@ fun SOSActiveScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // SOS Animado
             Box(contentAlignment = Alignment.Center) {
                 Box(modifier = Modifier.size(240.dp).scale(pulseScale).background(pulseColor, CircleShape))
                 Box(modifier = Modifier.size(180.dp).background(pulseColor, CircleShape))
@@ -94,7 +96,6 @@ fun SOSActiveScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Tracking Badge
             Surface(color = badgeBg, shape = RoundedCornerShape(24.dp)) {
                 Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.FiberManualRecord, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(12.dp))

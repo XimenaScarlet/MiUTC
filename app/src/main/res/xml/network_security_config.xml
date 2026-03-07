@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">maps.googleapis.com</domain>
+        <domain includeSubdomains="true">router.project-osrm.org</domain>
+        <domain includeSubdomains="true">firebaseio.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <pin-set expiration="2026-01-01">
+            <pin digest="SHA-256">7hi6thOf97InqM9SWfJAJLS0voS8ZLo8yInS/1cy6sk=</pin> <!-- maps.googleapis.com -->
+            <pin digest="SHA-256">Woi6yJ0FA9B7KBfWVkAnkthSefLW6suHB88WhotSvlE=</pin> <!-- router.project-osrm.org -->
+        </pin-set>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -5,21 +5,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.CurrentLocationRequest
-import com.google.android.gms.location.Granularity
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-class LocationHelper(private val context: Context) {
+@Singleton
+class LocationHelper @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -33,17 +32,10 @@ class LocationHelper(private val context: Context) {
         return fine || coarse
     }
 
-    /**
-     * Ubicación **fresca** y de **alta precisión**:
-     * 1) getCurrentLocation(HIGH_ACCURACY) (no usa caché)
-     * 2) si falla, una sola actualización activa
-     * 3) si falla, lastLocation como último recurso
-     */
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): LatLng? {
         if (!hasPermission()) return null
 
-        // 1) Solicitud fresca (sin caché)
         val tokenSrc = CancellationTokenSource()
         val freshed = runCatching {
             fused.getCurrentLocation(
@@ -56,11 +48,9 @@ class LocationHelper(private val context: Context) {
         }.getOrNull()
         if (freshed != null) return LatLng(freshed.latitude, freshed.longitude)
 
-        // 2) Una sola actualización activa (8s)
         val single = runCatching { requestSingleUpdate(8000L) }.getOrNull()
         if (single != null) return LatLng(single.latitude, single.longitude)
 
-        // 3) Fallback: última conocida (puede ser vieja)
         val last = runCatching { fused.lastLocation.awaitNullable() }.getOrNull()
         return last?.let { LatLng(it.latitude, it.longitude) }
     }
@@ -85,7 +75,6 @@ class LocationHelper(private val context: Context) {
         }
 }
 
-/* ---- helpers Task.awaitNullable ---- */
 private suspend fun <T> Task<T>.awaitNullable(): T? =
     suspendCancellableCoroutine { cont ->
         addOnSuccessListener { cont.resume(it) }

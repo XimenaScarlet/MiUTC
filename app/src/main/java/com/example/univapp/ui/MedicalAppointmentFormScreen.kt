@@ -42,14 +42,12 @@ fun MedicalAppointmentFormScreen(
     val subtitleColor = if (dark) Color(0xFF94A3B8) else Color(0xFF6B7280)
     val inputBg = if (dark) Color(0xFF334155) else Color.White
 
-    // --- ESTADOS PSICOLOGÍA ---
     var tipoAtencion by remember { mutableStateOf("Primera vez") }
     var motivoPsiSeleccionado by remember { mutableStateOf("Selecciona un motivo") }
     var expandedMotivo by remember { mutableStateOf(false) }
     var modalidad by remember { mutableStateOf("Presencial") }
     var notaPsi by remember { mutableStateOf("") }
 
-    // --- ESTADOS MÉDICO GENERAL (RESTAURADOS) ---
     val motivoMed by vm.reason.collectAsState()
     var urgenciaMedNormal by remember { mutableStateOf(true) }
     var tieneAlergia by remember { mutableStateOf(false) }
@@ -64,21 +62,25 @@ fun MedicalAppointmentFormScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(top = 20.dp, bottom = 40.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding() // CORRECCIÓN: Padding para evitar choque con la barra de estado
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Atrás", modifier = Modifier.size(28.dp), tint = titleColor)
                 }
                 Text(text = if(isPsicologia) "Cita Psicológica" else "Cita Médica", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = titleColor)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (isPsicologia) {
-                /* ================= FORMULARIO PSICOLOGÍA ================= */
                 FormSectionTitle("1. Tipo de atención", titleColor)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     SelectionButton(text = "Primera vez", selected = tipoAtencion == "Primera vez", dark = dark, modifier = Modifier.weight(1f)) { tipoAtencion = "Primera vez" }
@@ -121,7 +123,6 @@ fun MedicalAppointmentFormScreen(
                 )
 
             } else {
-                /* ================= FORMULARIO MÉDICO (RESTAURADO) ================= */
                 FormSectionTitle("Motivo de la consulta", titleColor)
                 TextField(
                     value = motivoMed, onValueChange = { vm.reason.value = it },
@@ -140,7 +141,6 @@ fun MedicalAppointmentFormScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Alergias
                 FormSectionTitle("¿Tienes alguna alergia?", titleColor)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     SelectionButton(text = "No", selected = !tieneAlergia, dark = dark, modifier = Modifier.weight(1f)) { tieneAlergia = false; alergiaTexto = "" }
@@ -153,7 +153,6 @@ fun MedicalAppointmentFormScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Medicamentos
                 FormSectionTitle("¿Tomas algún medicamento?", titleColor)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     SelectionButton(text = "No", selected = !tomaMed, dark = dark, modifier = Modifier.weight(1f)) { tomaMed = false; medTexto = "" }

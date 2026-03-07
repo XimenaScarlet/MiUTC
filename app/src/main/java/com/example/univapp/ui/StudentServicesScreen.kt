@@ -35,7 +35,6 @@ fun StudentServicesScreen(
 ) {
     val isDarkMode by settingsVm.darkMode.collectAsState()
 
-    // Dynamic Colors
     val bgColor = if (isDarkMode) Color(0xFF0F172A) else Color(0xFFF8F9FB)
     val cardBg = if (isDarkMode) Color(0xFF1E293B) else Color.White
     val titleColor = if (isDarkMode) Color.White else Color(0xFF1A1C1E)
@@ -53,7 +52,7 @@ fun StudentServicesScreen(
         modifier = Modifier.fillMaxSize(),
         color = bgColor
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) { // CORRECCIÓN: Padding de Status Bar
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -76,7 +75,6 @@ fun StudentServicesScreen(
                 }
             }
 
-            // Contenedor centrado verticalmente
             Box(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -88,7 +86,6 @@ fun StudentServicesScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Fila 1
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Box(modifier = Modifier.weight(1f)) {
                             ServiceCard(item1, cardBg, titleColor, subtitleColor, iconBoxColor, iconTintColor)
@@ -98,7 +95,6 @@ fun StudentServicesScreen(
                         }
                     }
                     
-                    // Fila 2
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Box(modifier = Modifier.weight(1f)) {
                             ServiceCard(item3, cardBg, titleColor, subtitleColor, iconBoxColor, iconTintColor)
@@ -108,7 +104,6 @@ fun StudentServicesScreen(
                         }
                     }
 
-                    // Fila 3: Documentos centrado (50% del ancho)
                     Box(modifier = Modifier.fillMaxWidth(0.5f)) {
                         ServiceCard(itemCenter, cardBg, titleColor, subtitleColor, iconBoxColor, iconTintColor)
                     }

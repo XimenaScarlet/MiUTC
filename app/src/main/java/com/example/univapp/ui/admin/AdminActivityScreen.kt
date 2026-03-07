@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.univapp.data.ActivityLog
+import com.example.univapp.ui.util.AppScaffold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,8 +41,7 @@ fun AdminActivityScreen(
     val logs by vm.logs.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
 
-    Scaffold(
-        containerColor = Color.White,
+    AppScaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Registro de Actividad", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp) },

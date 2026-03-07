@@ -8,7 +8,9 @@ import com.google.firebase.firestore.ServerTimestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.google.firebase.firestore.ListenerRegistration
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Date
+import javax.inject.Inject
 
 @IgnoreExtraProperties
 data class SosAlert(
@@ -21,8 +23,10 @@ data class SosAlert(
     @ServerTimestamp val timestamp: Date? = null
 )
 
-class AdminSosViewModel : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
+@HiltViewModel
+class AdminSosViewModel @Inject constructor(
+    private val db: FirebaseFirestore
+) : ViewModel() {
     private val _alerts = MutableStateFlow<List<SosAlert>>(emptyList())
     val alerts = _alerts.asStateFlow()
     private var listenerRegistration: ListenerRegistration? = null

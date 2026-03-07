@@ -48,11 +48,16 @@ fun MedicalSupportScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(top = 20.dp, bottom = 40.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding() // CORRECCIÓN: Padding para evitar choque con la hora
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                 IconButton(
                     onClick = onBack,
                     modifier = Modifier.align(Alignment.CenterStart).shadow(2.dp, CircleShape).background(if(dark) Color(0xFF334155) else Color.White, CircleShape).size(40.dp)
@@ -62,7 +67,7 @@ fun MedicalSupportScreen(
                 Text(text = "Información del Médico", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = titleColor)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Profile Image
             Box(contentAlignment = Alignment.BottomEnd) {
@@ -83,11 +88,10 @@ fun MedicalSupportScreen(
             Spacer(modifier = Modifier.height(32.dp))
             Text(text = "Sobre el médico", fontSize = 19.sp, fontWeight = FontWeight.Bold, color = titleColor)
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Especialista en medicina integral con más de 12 años de experiencia. Comprometido con el bienestar preventivo de la comunidad universitaria.", fontSize = 14.sp, color = subtitleColor, textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 22.sp)
+            Text(text = "Especialista en medicina integral con más de 12 años de experiencia. Comprometido con el bienestar preventivo de la comunidad universitaria.", fontSize = 14.sp, color = subtitleColor, textAlign = TextAlign.Center, lineHeight = 22.sp)
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Cards de Información
             MedicalInfoCard(icon = Icons.Default.Schedule, label = "HORARIO DE ATENCIÓN", text = "Lun - Vie, 08:00 AM - 04:00 PM", dark = dark, cardBg = cardBg, titleColor = textColor, subtitleColor = subtitleColor)
             Spacer(modifier = Modifier.height(16.dp))
             MedicalInfoCard(icon = Icons.Default.LocationOn, label = "UBICACIÓN", text = "Consultorio A-102 (Bloque Salud)", dark = dark, cardBg = cardBg, titleColor = textColor, subtitleColor = subtitleColor)
@@ -103,7 +107,7 @@ fun MedicalSupportScreen(
 }
 
 @Composable
-fun MedicalInfoCard(icon:  ImageVector, label: String, text: String, dark: Boolean, cardBg: Color, titleColor: Color, subtitleColor: Color) {
+fun MedicalInfoCard(icon: ImageVector, label: String, text: String, dark: Boolean, cardBg: Color, titleColor: Color, subtitleColor: Color) {
     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp), colors = CardDefaults.cardColors(containerColor = cardBg), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Surface(modifier = Modifier.size(42.dp), shape = RoundedCornerShape(12.dp), color = if(dark) Color(0xFF334155) else Color(0xFFF1F5F9)) {

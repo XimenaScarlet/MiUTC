@@ -8,16 +8,21 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+@HiltViewModel
+class SOSViewModel @Inject constructor(
+    private val locationHelper: LocationHelper,
+    private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : ViewModel() {
     private var trackingJob: Job? = null
 
     private val _isTracking = MutableStateFlow(false)
@@ -34,16 +39,12 @@ class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
         _isTracking.value = true
 
         viewModelScope.launch {
-            // Buscamos el nombre en la colección de alumnos. 
-            // Si el ID de auth no coincide, intentamos buscar por correo.
             var nombreAlumno = "Alumno"
             try {
-                // Intento 1: Buscar por UID (si se guardó así)
                 val docById = db.collection("alumnos").document(uid).get().await()
                 if (docById.exists()) {
                     nombreAlumno = docById.getString("nombre") ?: "Alumno"
                 } else {
-                    // Intento 2: Buscar por correo (común si se importaron por Excel)
                     val query = db.collection("alumnos").whereEqualTo("correo", email).get().await()
                     if (!query.isEmpty) {
                         nombreAlumno = query.documents[0].getString("nombre") ?: "Alumno"
