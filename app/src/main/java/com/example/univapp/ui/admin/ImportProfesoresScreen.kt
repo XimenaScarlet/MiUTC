@@ -32,9 +32,9 @@ import com.example.univapp.ui.util.AppScaffold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportAlumnosScreen(
+fun ImportProfesoresScreen(
     onBack: () -> Unit,
-    viewModel: AdminImportAlumnosViewModel = viewModel()
+    viewModel: AdminImportProfesoresViewModel = viewModel()
 ) {
     val importState by viewModel.importState.collectAsState()
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -42,23 +42,19 @@ fun ImportAlumnosScreen(
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            selectedFileUri = uri
-        }
+        onResult = { uri: Uri? -> selectedFileUri = uri }
     )
 
     AppScaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Importar Alumnos", fontWeight = FontWeight.Bold) },
+                title = { Text("Importar Profesores", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         }
     ) { padding ->
@@ -70,19 +66,19 @@ fun ImportAlumnosScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            GuiaDeImportacion()
+            GuiaImportProfesores()
             Spacer(modifier = Modifier.height(24.dp))
-            SubirArchivo(selectedFileUri) {
+            SubirArchivoProfesores(selectedFileUri) {
                 launcher.launch("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            ImportanteWarning()
+            AvisoImportanciaProfesores()
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
                     selectedFileUri?.let {
                         val inputStream = context.contentResolver.openInputStream(it)
-                        viewModel.importAlumnosFromUri(it, inputStream)
+                        viewModel.importProfesoresFromUri(it, inputStream)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -107,11 +103,9 @@ fun ImportAlumnosScreen(
             AlertDialog(
                 onDismissRequest = { viewModel.resetState() },
                 title = { Text("Importación Exitosa") },
-                text = { Text("${state.count} alumnos han sido importados correctamente.") },
+                text = { Text("${state.count} profesores han sido importados.") },
                 confirmButton = {
-                    Button(onClick = { viewModel.resetState(); onBack() }) {
-                        Text("Aceptar")
-                    }
+                    Button(onClick = { viewModel.resetState(); onBack() }) { Text("Aceptar") }
                 }
             )
         }
@@ -121,9 +115,7 @@ fun ImportAlumnosScreen(
                 title = { Text("Error en la Importación") },
                 text = { Text(state.message) },
                 confirmButton = {
-                    Button(onClick = { viewModel.resetState() }) {
-                        Text("Aceptar")
-                    }
+                    Button(onClick = { viewModel.resetState() }) { Text("Aceptar") }
                 }
             )
         }
@@ -132,7 +124,7 @@ fun ImportAlumnosScreen(
 }
 
 @Composable
-private fun GuiaDeImportacion() {
+private fun GuiaImportProfesores() {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF007AFF)),
@@ -140,31 +132,18 @@ private fun GuiaDeImportacion() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Default.Description,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
+                Icon(Icons.Default.Description, null, tint = Color.White, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text("Guía de Importación", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("Sigue estos pasos cuidadosamente", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-                }
+                Text("Guía de Importación", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             Spacer(modifier = Modifier.height(16.dp))
             listOf(
-                "El archivo debe estar obligatoriamente en formato .xlsx",
-                "La primera fila debe contener los encabezados exactos de la plantilla.",
-                "Asegúrese de que no existan celdas combinadas."
+                "Formato requerido: .xlsx",
+                "Columnas: id, nombre, correo, carreraId",
+                "Evite celdas vacías en nombre y correo."
             ).forEachIndexed { index, text ->
-                Row(modifier = Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .background(Color.White.copy(alpha = 0.2f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Box(modifier = Modifier.size(20.dp).background(Color.White.copy(alpha = 0.2f), CircleShape), contentAlignment = Alignment.Center) {
                         Text((index + 1).toString(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
@@ -176,62 +155,27 @@ private fun GuiaDeImportacion() {
 }
 
 @Composable
-private fun SubirArchivo(selectedFileUri: Uri?, onClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Subir Archivo", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text("REQUERIDO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val stroke = Stroke(width = 2f,
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
-                .clickable { onClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            Canvas(Modifier.fillMaxSize()){
-                drawRoundRect(color = Color(0xFFE0E0E0), style = stroke)
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.Upload,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(40.dp)
-                )
-                Text(selectedFileUri?.lastPathSegment ?: "Seleccionar archivo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Máximo 10MB (.xlsx)", color = Color.Gray, fontSize = 12.sp)
-            }
+private fun SubirArchivoProfesores(selectedFileUri: Uri?, onClick: () -> Unit) {
+    val stroke = Stroke(width = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
+    Box(
+        modifier = Modifier.fillMaxWidth().height(150.dp).background(Color.White, RoundedCornerShape(12.dp)).border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp)).clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(Modifier.fillMaxSize()) { drawRoundRect(color = Color(0xFFE0E0E0), style = stroke) }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Default.Upload, null, tint = Color.Gray, modifier = Modifier.size(40.dp))
+            Text(selectedFileUri?.lastPathSegment ?: "Seleccionar archivo", fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-private fun ImportanteWarning() {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
-        border = BorderStroke(1.dp, Color(0xFFFFE0B2)),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+private fun AvisoImportanciaProfesores() {
+    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)), modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(16.dp)) {
-            Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFFFA726))
+            Icon(Icons.Default.Info, null, tint = Color(0xFFFFA726))
             Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text("IMPORTANTE", color = Color(0xFFE65100), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text("La importación reemplazará los datos existentes si coinciden las matrículas. Esta acción no se puede deshacer.", color = Color(0xFFE65100), fontSize = 14.sp)
-            }
+            Text("Los registros existentes se actualizarán si el ID coincide.", color = Color(0xFFE65100), fontSize = 14.sp)
         }
     }
 }

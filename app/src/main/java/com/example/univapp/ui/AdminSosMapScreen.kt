@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.univapp.ui.util.AppScaffold
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -34,32 +35,30 @@ fun AdminSosMapScreen(
     val alerts by viewModel.alerts.collectAsState()
     var selectedAlertId by remember { mutableStateOf<String?>(null) }
     
-    // Encontramos la alerta actualizada basándonos en el ID seleccionado
     val selectedAlert = alerts.find { it.alumnoId == selectedAlertId }
 
     LaunchedEffect(Unit) {
         viewModel.startListening()
     }
 
-    Scaffold(
+    AppScaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Monitoreo SOS Activo", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Atrás", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFEF4444),
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
             )
-        },
-        containerColor = Color(0xFFF8FAFC)
+        }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Column(modifier = Modifier.padding(padding).fillMaxSize().background(Color(0xFFF8FAFC))) {
             if (alerts.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -79,28 +78,21 @@ fun AdminSosMapScreen(
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Illustration
                             Box(
                                 modifier = Modifier.size(220.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                // Background Circle
                                 Surface(
                                     modifier = Modifier.size(170.dp),
                                     shape = CircleShape,
                                     color = Color(0xFFF2F4F7)
                                 ) {}
-                                
-                                // Bell icon
                                 Icon(
                                     imageVector = Icons.Default.NotificationsOff,
                                     contentDescription = null,
                                     tint = Color(0xFFD0D5DD),
                                     modifier = Modifier.size(90.dp)
                                 )
-                                
-                                // Floating elements
-                                // Green dot
                                 Surface(
                                     modifier = Modifier
                                         .size(16.dp)
@@ -109,8 +101,6 @@ fun AdminSosMapScreen(
                                     shape = CircleShape,
                                     color = Color(0xFF22C55E)
                                 ) {}
-                                
-                                // Green shield card
                                 Surface(
                                     modifier = Modifier
                                         .size(50.dp)
@@ -129,8 +119,6 @@ fun AdminSosMapScreen(
                                         )
                                     }
                                 }
-                                
-                                // Blue verified card
                                 Surface(
                                     modifier = Modifier
                                         .size(50.dp)
@@ -150,18 +138,14 @@ fun AdminSosMapScreen(
                                     }
                                 }
                             }
-                            
                             Spacer(modifier = Modifier.height(32.dp))
-                            
                             Text(
                                 text = "Todo está bajo control",
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color(0xFF1D2939)
                             )
-                            
                             Spacer(modifier = Modifier.height(12.dp))
-                            
                             Text(
                                 text = "No hay alarmas activas en este momento.",
                                 fontSize = 18.sp,
@@ -169,9 +153,7 @@ fun AdminSosMapScreen(
                                 textAlign = TextAlign.Center,
                                 lineHeight = 24.sp
                             )
-                            
                             Spacer(modifier = Modifier.height(48.dp))
-                            
                             Button(
                                 onClick = { viewModel.startListening() },
                                 shape = RoundedCornerShape(28.dp),
@@ -203,7 +185,6 @@ fun AdminSosMapScreen(
                     fontWeight = FontWeight.Black,
                     color = Color(0xFFEF4444)
                 )
-                
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
@@ -262,7 +243,6 @@ fun SosMapDialog(alert: SosAlert, onDismiss: () -> Unit) {
         this.position = CameraPosition.fromLatLngZoom(position, 17f)
     }
 
-    // Efecto para mover la cámara si la ubicación cambia mientras el diálogo está abierto
     LaunchedEffect(alert.location) {
         alert.location?.let {
             val newPos = LatLng(it.latitude, it.longitude)
@@ -291,7 +271,6 @@ fun SosMapDialog(alert: SosAlert, onDismiss: () -> Unit) {
                         Text("CERRAR", color = Color.White)
                     }
                 }
-                
                 Box(modifier = Modifier.weight(1f)) {
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
@@ -304,7 +283,6 @@ fun SosMapDialog(alert: SosAlert, onDismiss: () -> Unit) {
                             )
                         }
                     }
-                    
                     if (alert.location == null) {
                         Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -315,7 +293,6 @@ fun SosMapDialog(alert: SosAlert, onDismiss: () -> Unit) {
                         }
                     }
                 }
-                
                 Box(Modifier.fillMaxWidth().padding(20.dp)) {
                     Text(
                         "Atención: El alumno requiere asistencia inmediata. El mapa se actualizará automáticamente en cuanto se reciba la señal GPS.",

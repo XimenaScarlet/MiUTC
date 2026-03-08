@@ -36,7 +36,7 @@ import com.example.univapp.ui.util.AppScaffold
 fun AdminAlumnosScreen(
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
-    onAddManually: () -> Unit,
+    onAddManually: (String, String) -> Unit,
     onImportExcel: () -> Unit,
     vm: AdminAlumnosViewModel = viewModel()
 ) {
@@ -82,17 +82,25 @@ fun AdminAlumnosScreen(
                         contentColor = Color.White,
                         shape = CircleShape
                     ) {
-                        Icon(Icons.Default.Add, "Añadir Alumno")
+                        Icon(Icons.Default.Add, "Opciones")
                     }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                        DropdownMenuItem(text = { Text("Agregar Manualmente") }, onClick = {
-                            onAddManually()
-                            showMenu = false
-                        })
-                        DropdownMenuItem(text = { Text("Importar Excel") }, onClick = {
-                            onImportExcel()
-                            showMenu = false
-                        })
+                        DropdownMenuItem(
+                            text = { Text("Agregar Manualmente") },
+                            onClick = {
+                                val cId = uiState.selectedCarrera?.id ?: ""
+                                val gId = uiState.selectedGrupo?.id ?: ""
+                                onAddManually(cId, gId)
+                                showMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Importar Excel") },
+                            onClick = {
+                                onImportExcel()
+                                showMenu = false
+                            }
+                        )
                     }
                 }
             }
