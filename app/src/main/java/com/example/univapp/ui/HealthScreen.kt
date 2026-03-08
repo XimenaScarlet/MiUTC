@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.univapp.ui.util.AppScaffold
 
 @Composable
 fun HealthScreen(
@@ -45,14 +46,16 @@ fun HealthScreen(
     val cardSubtitleColor = if (dark) Color(0xFF94A3B8) else Color(0xFF4B5563)
     val iconCircleBg = if (dark) Color(0xFF334155) else Color.White
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = bgColor
-    ) {
+    AppScaffold { pv ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+<<<<<<< HEAD
                 .statusBarsPadding() // CORRECCIÓN: Padding para evitar choque con la hora
+=======
+                .background(bgColor)
+                .padding(pv)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally

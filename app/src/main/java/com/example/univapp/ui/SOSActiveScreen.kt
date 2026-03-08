@@ -1,6 +1,7 @@
 package com.example.univapp.ui
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.univapp.location.LocationHelper
+import com.example.univapp.ui.util.AppScaffold
 
 @Composable
 fun SOSActiveScreen(
@@ -46,12 +48,29 @@ fun SOSActiveScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions.values.all { it }) viewModel.startTracking()
+        // Iniciar seguimiento si AL MENOS UNO de los permisos fue concedido
+        val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        
+        if (fineGranted || coarseGranted) {
+            Log.d("SOS_DEBUG", "Permisos concedidos. Iniciando tracking...")
+            viewModel.startTracking()
+        } else {
+            Log.e("SOS_DEBUG", "Permisos de ubicación DENEGADOS. No se puede iniciar SOS.")
+        }
     }
 
     LaunchedEffect(Unit) {
-        if (locationHelper.hasPermission()) viewModel.startTracking()
-        else permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (locationHelper.hasPermission()) {
+            Log.d("SOS_DEBUG", "Permisos ya presentes. Iniciando tracking...")
+            viewModel.startTracking()
+        } else {
+            Log.d("SOS_DEBUG", "Solicitando permisos de ubicación...")
+            permissionLauncher.launch(arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION, 
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ))
+        }
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
@@ -61,11 +80,16 @@ fun SOSActiveScreen(
         label = "scale"
     )
 
-    Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
+    AppScaffold { pv ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+<<<<<<< HEAD
                 .statusBarsPadding() // CORRECCIÓN: Padding superior
+=======
+                .background(bgColor)
+                .padding(pv)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -101,7 +125,7 @@ fun SOSActiveScreen(
                     Icon(imageVector = Icons.Default.FiberManualRecord, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     val isTracking by viewModel.isTracking.collectAsState()
-                    Text(text = if (isTracking) "Rastreando ubicación en vivo" else "Iniciando rastreo...", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = badgeText)
+                    Text(text = if (isTracking) "Rastreando ubicación en vivo" else "Esperando señal GPS...", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = badgeText)
                 }
             }
 

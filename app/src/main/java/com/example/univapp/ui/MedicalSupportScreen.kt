@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.univapp.R
+import com.example.univapp.ui.util.AppScaffold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,11 +47,16 @@ fun MedicalSupportScreen(
     val textColor = if (dark) Color(0xFFE2E8F0) else Color(0xFF111827)
     val subtitleColor = if (dark) Color(0xFF94A3B8) else Color(0xFF6B7280)
 
-    Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
+    AppScaffold { pv ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+<<<<<<< HEAD
                 .statusBarsPadding() // CORRECCIÓN: Padding para evitar choque con la hora
+=======
+                .background(bgColor)
+                .padding(pv)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 40.dp),

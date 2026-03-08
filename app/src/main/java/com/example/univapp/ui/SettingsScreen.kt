@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.univapp.ui.util.AppScaffold
 
 @Composable
 fun SettingsScreen(
@@ -54,14 +55,16 @@ fun SettingsScreen(
     val iconTintColor = if (dark) Color(0xFF60A5FA) else Color(0xFF1D4ED8)
     val dividerColor = if (dark) Color(0xFF334155) else Color(0xFFF1F3F4)
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = bgColor
-    ) {
+    AppScaffold { pv ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+<<<<<<< HEAD
                 .statusBarsPadding() // ESPACIO DE SEGURIDAD PARA LA HORA
+=======
+                .background(bgColor)
+                .padding(pv)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 .verticalScroll(scrollState)
         ) {
             // Header
@@ -164,6 +167,7 @@ fun SettingsScreen(
                             iconBoxColor = iconBoxColor,
                             iconTintColor = iconTintColor
                         )
+<<<<<<< HEAD
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = dividerColor)
                         SettingsClickableItem(
                             icon = Icons.Outlined.Description,
@@ -175,6 +179,8 @@ fun SettingsScreen(
                             iconTintColor = iconTintColor,
                             onClick = { }
                         )
+=======
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                     }
                 }
 

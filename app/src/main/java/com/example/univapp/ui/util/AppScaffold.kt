@@ -14,6 +14,10 @@ fun AppScaffold(
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+<<<<<<< HEAD
+=======
+    snackbarHost: @Composable () -> Unit = {},
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -21,6 +25,10 @@ fun AppScaffold(
         topBar = topBar,
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,
+<<<<<<< HEAD
+=======
+        snackbarHost = snackbarHost,
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         // Este parámetro es clave: ignora los insets por defecto para que nosotros los manejemos 
         // o los aplica correctamente si usamos el PaddingValues de content.
         contentWindowInsets = WindowInsets.safeDrawing 

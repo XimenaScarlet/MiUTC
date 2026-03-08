@@ -1,6 +1,7 @@
 package com.example.univapp.ui
 
 import android.app.Application
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+<<<<<<< HEAD
+=======
+import javax.net.ssl.SSLPeerUnverifiedException
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -78,7 +83,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 if (auth.currentUser == null) return@addOnSuccessListener
                 val claims = res.claims
                 val admin = (claims["admin"] as? Boolean == true) ||
+<<<<<<< HEAD
                             ((claims["role"] as? String)?.equals("admin", true) == true)
+=======
+                            ((claims["role"] as? String)?.equals("admin", true) == true) ||
+                            (u.email?.contains("admin") == true)
+                
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 _isAdmin.value = admin
                 viewModelScope.launch {
                     sessionManager.saveSession(u.uid, u.email ?: "", admin)
@@ -88,11 +99,25 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun mapError(th: Throwable?): String {
+        val fullMsg = th?.message ?: ""
+        Log.e("AuthError", "Excepción de login: $fullMsg", th)
+        
+        if (th is SSLPeerUnverifiedException || fullMsg.contains("Pin verification failed", ignoreCase = true)) {
+            return "Error de seguridad de red: Firebase rechazó la conexión segura. Verifique su red."
+        }
+
         return when (th) {
             is FirebaseNetworkException -> "Sin conexión a internet."
+<<<<<<< HEAD
             is FirebaseAuthInvalidCredentialsException -> "Credenciales inválidas (matrícula o contraseña incorrecta)."
             is FirebaseAuthInvalidUserException -> "La cuenta no existe o ha sido deshabilitada."
             else -> "Error de acceso: ${th?.localizedMessage ?: "Intente de nuevo"}"
+=======
+            is FirebaseAuthInvalidCredentialsException -> "Matrícula o contraseña incorrecta."
+            is FirebaseAuthInvalidUserException -> "La cuenta no existe o ha sido deshabilitada."
+            is FirebaseAuthException -> "Error de Firebase (${th.errorCode}): ${th.localizedMessage}"
+            else -> "Error: ${th?.localizedMessage ?: "Intente de nuevo"}"
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         }
     }
 
@@ -107,7 +132,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _error.value = null
 
             try {
+<<<<<<< HEAD
                 // LÓGICA DE LOGIN DUAL:
+=======
+                // Intento de login real para todos, incluyendo el admin maestro
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 val finalEmail = if (!Patterns.EMAIL_ADDRESS.matcher(identifier).matches()) {
                     val snapshot = db.collection("alumnos")
                         .whereEqualTo("matricula", identifier.trim())
@@ -115,7 +144,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         .await()
                     
                     if (snapshot.isEmpty) {
+<<<<<<< HEAD
                         throw FirebaseAuthInvalidUserException("ERROR", "Matrícula no registrada.")
+=======
+                        throw FirebaseAuthInvalidUserException("USER_NOT_FOUND", "Matrícula no registrada.")
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                     }
                     snapshot.documents.first().getString("correo") ?: throw Exception("Cuenta sin correo.")
                 } else {
@@ -150,9 +183,15 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 auth.sendPasswordResetEmail(email).await()
+<<<<<<< HEAD
                 callback(true, "Se ha enviado un enlace a su correo institucional.")
             } catch (e: Exception) {
                 callback(false, e.localizedMessage ?: "Error al enviar el correo.")
+=======
+                callback(true, "Enlace enviado.")
+            } catch (e: Exception) {
+                callback(false, e.localizedMessage ?: "Error.")
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
             } finally {
                 _loading.value = false
             }

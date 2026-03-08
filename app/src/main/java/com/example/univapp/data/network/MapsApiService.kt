@@ -1,11 +1,22 @@
 package com.example.univapp.data.network
 
 import retrofit2.http.GET
+<<<<<<< HEAD
 import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface MapsApiService {
     @GET("maps/api/directions/json")
+=======
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+interface MapsApiService {
+    /**
+     * Google Directions API
+     */
+    @GET("https://maps.googleapis.com/maps/api/directions/json")
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     suspend fun getDirections(
         @Query("origin") origin: String,
         @Query("destination") destination: String,
@@ -15,11 +26,32 @@ interface MapsApiService {
         @Query("key") apiKey: String
     ): DirectionsResponse
 
+<<<<<<< HEAD
     @GET(".")
     suspend fun getOsrmRoute(@Url url: String): OsrmResponse
 
     @GET
     suspend fun getOsrmDirections(@Url url: String): OsrmFullResponse
+=======
+    /**
+     * OSRM API - Basic Route (for ETA)
+     */
+    @GET("https://router.project-osrm.org/route/v1/driving/{coords}")
+    suspend fun getOsrmRoute(
+        @Path("coords") coords: String,
+        @Query("overview") overview: String = "false"
+    ): OsrmResponse
+
+    /**
+     * OSRM API - Full Route (for Polylines)
+     */
+    @GET("https://router.project-osrm.org/route/v1/driving/{coords}")
+    suspend fun getOsrmFullRoute(
+        @Path("coords") coords: String,
+        @Query("overview") overview: String = "full",
+        @Query("geometries") geometries: String = "polyline6"
+    ): OsrmFullResponse
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
 }
 
 data class DirectionsResponse(

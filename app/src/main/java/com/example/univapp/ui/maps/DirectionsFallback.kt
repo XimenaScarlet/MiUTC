@@ -39,10 +39,13 @@ suspend fun fetchDirectionsPolylineOsrm(points: List<LatLng>): List<LatLng>? =
         if (points.size < 2) return@withContext null
 
         val coords = points.joinToString(";") { "${it.longitude},${it.latitude}" }
-        val url = "https://router.project-osrm.org/route/v1/driving/$coords?overview=full&geometries=polyline6"
 
         runCatching {
+<<<<<<< HEAD
             val response = NetworkModule.mapsApiService.getOsrmDirections(url)
+=======
+            val response = NetworkModule.mapsApiService.getOsrmFullRoute(coords = coords)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
             if (response.code != "Ok") return@runCatching null
             
             val routes = response.routes ?: return@runCatching null

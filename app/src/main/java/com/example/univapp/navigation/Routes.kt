@@ -21,8 +21,6 @@ object Routes {
     const val STUDENT_ENROLLMENT_CERTIFICATE = "student_enrollment_certificate"
     const val STUDENT_ENROLLMENT_FORM = "student_enrollment_form"
     const val STUDENT_ENROLLMENT_CERTIFICATE_SUCCESS = "student_enrollment_certificate_success"
-    const val KARDEX_SELECTION = "kardex_selection"
-    const val KARDEX_REQUEST = "kardex_request"
     const val ACADEMIC_HISTORY = "academic_history"
     const val SCHOOL_INFO = "school_info"
     const val MEDICAL_APPOINTMENT_FORM = "medical_appointment_form"
@@ -50,7 +48,10 @@ object Routes {
     const val ADMIN_ANNOUNCEMENTS = "admin_avisos"
     const val ADMIN_SOS_MAP = "admin_sos_map"
     
+<<<<<<< HEAD
     // MODIFICADO: Ahora requiere groupId y carreraId
+=======
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     const val ADMIN_ADD_ALUMNO = "admin_add_alumno/{carreraId}/{groupId}"
     const val ADMIN_EDIT_ALUMNO = "admin_edit_alumno/{alumnoId}"
     const val ADMIN_IMPORT_ALUMNOS = "admin_import_alumnos"
@@ -67,6 +68,9 @@ object Routes {
     const val ADMIN_GROUP_DETAIL = "admin_group_detail/{groupId}"
     const val ADMIN_ADD_GROUP_DETAILS = "admin_add_group_details/{carreraId}"
     const val ADMIN_ASSIGN_STUDENTS = "admin_assign_students/{groupName}/{programType}/{tutorId}/{carreraId}"
+    
+    const val ADMIN_IMPORT_PROFESORES = "admin_import_profesores"
+    const val ADMIN_IMPORT_GRUPOS = "admin_import_grupos"
     
     const val SUBJECT_DETAIL = "subjectDetail/{term}/{subjectId}"
     const val ROUTE_MAP = "routeMap/{id}"

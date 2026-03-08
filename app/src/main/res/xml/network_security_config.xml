@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+<<<<<<< HEAD
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">maps.googleapis.com</domain>
         <domain includeSubdomains="true">router.project-osrm.org</domain>
@@ -10,6 +11,35 @@
             <pin digest="SHA-256">Woi6yJ0FA9B7KBfWVkAnkthSefLW6suHB88WhotSvlE=</pin> <!-- router.project-osrm.org -->
         </pin-set>
     </domain-config>
+=======
+    <!-- Configuración para Google Maps con Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">maps.googleapis.com</domain>
+        <pin-set expiration="2027-01-01">
+            <pin digest="SHA-256">7hi6thOf97InqM9SWfJAJLS0voS8ZLo8yInS/1cy6sk=</pin>
+        </pin-set>
+    </domain-config>
+
+    <!-- Configuración para OSRM con Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">router.project-osrm.org</domain>
+        <pin-set expiration="2027-01-01">
+            <pin digest="SHA-256">Woi6yJ0FA9B7KBfWVkAnkthSefLW6suHB88WhotSvlE=</pin>
+        </pin-set>
+    </domain-config>
+
+    <!-- Dominios de Firebase y Google SIN Pinning para evitar errores de SSL/Auth -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">firebaseio.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">firebasestorage.googleapis.com</domain>
+        <domain includeSubdomains="true">firestore.googleapis.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />

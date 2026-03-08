@@ -31,10 +31,13 @@ class EtaFetcher @Inject constructor(
 suspend fun fetchEtaOsrm(origin: LatLng, dest: LatLng): EtaResult? =
     withContext(Dispatchers.IO) {
         val coords = "${origin.longitude},${origin.latitude};${dest.longitude},${dest.latitude}"
-        val url = "https://router.project-osrm.org/route/v1/driving/$coords?overview=false"
 
         runCatching {
+<<<<<<< HEAD
             val response = NetworkModule.mapsApiService.getOsrmRoute(url)
+=======
+            val response = NetworkModule.mapsApiService.getOsrmRoute(coords = coords)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
             if (response.code != "Ok") return@runCatching null
             val route0 = response.routes.firstOrNull() ?: return@runCatching null
             

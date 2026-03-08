@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.univapp.ui.util.AppScaffold
 
 @Composable
 fun StudentServicesScreen(
@@ -48,11 +49,21 @@ fun StudentServicesScreen(
     val item4 = ServiceItem("Credencial Digital", "Ver identificación", Icons.Default.Badge, onOpenDigitalID)
     val itemCenter = ServiceItem("Documentos", "Descargas PDF", Icons.Default.Folder, onOpenDocuments)
 
+<<<<<<< HEAD
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = bgColor
     ) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) { // CORRECCIÓN: Padding de Status Bar
+=======
+    AppScaffold { pv ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(bgColor)
+                .padding(pv)
+        ) {
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),

@@ -31,13 +31,18 @@ import com.example.univapp.data.Alumno
 import com.example.univapp.data.Carrera
 import com.example.univapp.data.Grupo
 import com.example.univapp.data.Profesor
+import com.example.univapp.ui.util.AppScaffold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGroupDetailScreen(
     groupId: String,
     onBack: () -> Unit,
+<<<<<<< HEAD
     onAddAlumno: (String) -> Unit, // PARÁMETRO AÑADIDO
+=======
+    onAddAlumno: (String) -> Unit,
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     vm: AdminGroupDetailViewModel = viewModel()
 ) {
     val uiState by vm.uiState.collectAsState()
@@ -46,7 +51,7 @@ fun AdminGroupDetailScreen(
         vm.load(groupId)
     }
 
-    Scaffold(
+    AppScaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Detalles del Grupo", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
@@ -55,7 +60,7 @@ fun AdminGroupDetailScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
         floatingActionButton = {
@@ -68,10 +73,14 @@ fun AdminGroupDetailScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar Alumno")
             }
+<<<<<<< HEAD
         },
         containerColor = Color.White
+=======
+        }
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Box(modifier = Modifier.padding(padding).fillMaxSize().background(Color.White)) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF0F6C6D))
             } else if (uiState.error != null) {

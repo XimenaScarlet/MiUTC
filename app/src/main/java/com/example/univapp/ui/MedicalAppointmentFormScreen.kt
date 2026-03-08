@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.univapp.ui.util.AppScaffold
+import com.example.univapp.ui.util.ValidatedTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,16 +62,34 @@ fun MedicalAppointmentFormScreen(
         "Problemas personales / familiares", "Orientación emocional", "Otro"
     )
 
-    Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
+    AppScaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = if(isPsicologia) "Cita Psicológica" else "Cita Médica", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = titleColor) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Atrás", modifier = Modifier.size(28.dp), tint = titleColor)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = bgColor)
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+<<<<<<< HEAD
                 .statusBarsPadding() // CORRECCIÓN: Padding para evitar choque con la barra de estado
+=======
+                .background(bgColor)
+                .padding(padding)
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+<<<<<<< HEAD
             // Header
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
@@ -79,6 +99,9 @@ fun MedicalAppointmentFormScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+=======
+            Spacer(modifier = Modifier.height(16.dp))
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
 
             if (isPsicologia) {
                 FormSectionTitle("1. Tipo de atención", titleColor)
@@ -115,20 +138,24 @@ fun MedicalAppointmentFormScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 FormSectionTitle("4. Nota opcional", titleColor)
-                TextField(
-                    value = notaPsi, onValueChange = { notaPsi = it },
-                    placeholder = { Text("¿Algo que quieras que el psicólogo sepa antes?", color = subtitleColor.copy(alpha = 0.6f)) },
-                    modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(16.dp)),
-                    colors = TextFieldDefaults.colors(focusedContainerColor = inputBg, unfocusedContainerColor = inputBg, focusedTextColor = titleColor, unfocusedTextColor = titleColor, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+                ValidatedTextField(
+                    value = notaPsi,
+                    onValueChange = { notaPsi = it },
+                    label = "¿Algo que quieras que el psicólogo sepa antes?",
+                    maxLength = 300,
+                    singleLine = false,
+                    modifier = Modifier.heightIn(min = 100.dp)
                 )
 
             } else {
                 FormSectionTitle("Motivo de la consulta", titleColor)
-                TextField(
-                    value = motivoMed, onValueChange = { vm.reason.value = it },
-                    placeholder = { Text("Ej: Dolor de cabeza o Revisión", color = subtitleColor.copy(alpha = 0.6f)) },
-                    modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(16.dp)),
-                    colors = TextFieldDefaults.colors(focusedContainerColor = inputBg, unfocusedContainerColor = inputBg, focusedTextColor = titleColor, unfocusedTextColor = titleColor, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+                ValidatedTextField(
+                    value = motivoMed,
+                    onValueChange = { vm.reason.value = it },
+                    label = "Ej: Dolor de cabeza o Revisión",
+                    maxLength = 200,
+                    singleLine = false,
+                    modifier = Modifier.heightIn(min = 100.dp)
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -147,8 +174,13 @@ fun MedicalAppointmentFormScreen(
                     SelectionButton(text = "Sí", selected = tieneAlergia, dark = dark, modifier = Modifier.weight(1f)) { tieneAlergia = true }
                 }
                 if (tieneAlergia) {
-                    Spacer(Modifier.height(8.dp))
-                    TextField(value = alergiaTexto, onValueChange = { alergiaTexto = it }, placeholder = { Text("¿A qué eres alérgico?") }, modifier = Modifier.fillMaxWidth(), colors = TextFieldDefaults.colors(focusedContainerColor = inputBg, unfocusedContainerColor = inputBg, focusedTextColor = titleColor, unfocusedTextColor = titleColor))
+                    Spacer(Modifier.height(12.dp))
+                    ValidatedTextField(
+                        value = alergiaTexto,
+                        onValueChange = { alergiaTexto = it },
+                        label = "¿A qué eres alérgico?",
+                        maxLength = 100
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -159,8 +191,13 @@ fun MedicalAppointmentFormScreen(
                     SelectionButton(text = "Sí", selected = tomaMed, dark = dark, modifier = Modifier.weight(1f)) { tomaMed = true }
                 }
                 if (tomaMed) {
-                    Spacer(Modifier.height(8.dp))
-                    TextField(value = medTexto, onValueChange = { medTexto = it }, placeholder = { Text("¿Qué medicamentos?") }, modifier = Modifier.fillMaxWidth(), colors = TextFieldDefaults.colors(focusedContainerColor = inputBg, unfocusedContainerColor = inputBg, focusedTextColor = titleColor, unfocusedTextColor = titleColor))
+                    Spacer(Modifier.height(12.dp))
+                    ValidatedTextField(
+                        value = medTexto,
+                        onValueChange = { medTexto = it },
+                        label = "¿Qué medicamentos?",
+                        maxLength = 150
+                    )
                 }
             }
 

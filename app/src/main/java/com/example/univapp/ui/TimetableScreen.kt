@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.univapp.data.Horario
+import com.example.univapp.ui.util.AppScaffold
 import java.util.Calendar
 
 @Composable
@@ -76,8 +77,18 @@ fun TimetableScreen(
     }
     val logicHours = listOf("17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30")
 
+<<<<<<< HEAD
     Surface(modifier = Modifier.fillMaxSize(), color = bgColor) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+=======
+    AppScaffold { pv ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(bgColor)
+                .padding(pv)
+        ) {
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
             Spacer(Modifier.height(8.dp)) // Margen extra para la status bar
             Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
                 IconButton(

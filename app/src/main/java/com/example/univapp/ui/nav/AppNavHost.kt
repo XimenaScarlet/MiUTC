@@ -29,7 +29,10 @@ fun AppNavHost() {
     val authError by authVM.error.collectAsState()
     val context = LocalContext.current
 
+<<<<<<< HEAD
     // CONTROL DE NAVEGACIÓN GLOBAL (LOGOUT)
+=======
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn) {
             nav.navigate(Routes.LOGIN) {
@@ -100,9 +103,14 @@ fun AppNavHost() {
             AdminAlumnosScreen(
                 onBack = { nav.popBackStack() },
                 onEdit = { id -> nav.navigate(Routes.ADMIN_EDIT_ALUMNO.replace("{alumnoId}", id)) },
+<<<<<<< HEAD
                 onAddManually = { 
                     // Nota: Si se agrega desde la lista general, necesitaríamos IDs por defecto o pedir selección
                     // Por ahora mantendremos el flujo desde Grupo para que sea consistente
+=======
+                onAddManually = { cid, gid -> 
+                    nav.navigate(Routes.ADMIN_ADD_ALUMNO.replace("{carreraId}", cid).replace("{groupId}", gid)) 
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
                 },
                 onImportExcel = { nav.navigate(Routes.ADMIN_IMPORT_ALUMNOS) }
             )
@@ -134,7 +142,7 @@ fun AppNavHost() {
                     val c = uiState.selectedCarrera?.id ?: return@AdminGruposScreen
                     nav.navigate(Routes.ADMIN_ADD_GROUP_DETAILS.replace("{carreraId}", c))
                 },
-                onImportExcel = { },
+                onImportExcel = { nav.navigate(Routes.ADMIN_IMPORT_GRUPOS) },
                 uiState = uiState,
                 onCarreraSelected = { vm.onCarreraSelected(it) }
             )
@@ -149,7 +157,7 @@ fun AppNavHost() {
                     val c = uiState.selectedCarrera?.id ?: return@AdminProfesoresScreen
                     nav.navigate(Routes.ADMIN_ADD_PROFESOR.replace("{carreraId}", c))
                 },
-                onImportExcel = { },
+                onImportExcel = { nav.navigate(Routes.ADMIN_IMPORT_PROFESORES) },
                 vm = vm
             )
         }
@@ -172,8 +180,14 @@ fun AppNavHost() {
         composable(Routes.ADMIN_ACTIVITY) { AdminActivityScreen(onBack = { nav.popBackStack() }) }
         composable(Routes.ADMIN_IMPORT_ALUMNOS) { ImportAlumnosScreen(onBack = { nav.popBackStack() }) }
         composable(Routes.ADMIN_IMPORT_MATERIAS) { ImportMateriasScreen(onBack = { nav.popBackStack() }) }
+<<<<<<< HEAD
         
         // MODIFICADO: Composable para recibir parámetros de grupo y carrera
+=======
+        composable(Routes.ADMIN_IMPORT_PROFESORES) { ImportProfesoresScreen(onBack = { nav.popBackStack() }) }
+        composable(Routes.ADMIN_IMPORT_GRUPOS) { ImportGruposScreen(onBack = { nav.popBackStack() }) }
+        
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         composable(
             route = Routes.ADMIN_ADD_ALUMNO,
             arguments = listOf(
@@ -329,7 +343,6 @@ fun AppNavHost() {
             StudentProceduresScreen(
                 onBack = { nav.popBackStack() },
                 onOpenEnrollmentCertificate = { nav.navigate(Routes.STUDENT_ENROLLMENT_CERTIFICATE) },
-                onOpenKardex = { nav.navigate(Routes.KARDEX_SELECTION) },
                 onOpenIDReplacement = { nav.navigate(Routes.ID_REPLACEMENT) },
                 onOpenInternshipCertificate = { nav.navigate(Routes.INTERNSHIP_CERTIFICATE) },
                 onOpenBajaTemporal = { nav.navigate(Routes.BAJA_TEMPORAL) },
@@ -342,6 +355,7 @@ fun AppNavHost() {
                 onBack = { nav.popBackStack() },
                 onStartProcedure = { nav.navigate(Routes.STUDENT_PROCEDURES) },
                 vm = pvm
+<<<<<<< HEAD
             )
         }
         composable(Routes.KARDEX_SELECTION) {
@@ -365,6 +379,11 @@ fun AppNavHost() {
                 }
             )
         }
+=======
+            )
+        }
+        composable(Routes.ACADEMIC_HISTORY) { AcademicHistoryScreen(onBack = { nav.popBackStack() }) }
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         composable(Routes.STUDENT_ENROLLMENT_CERTIFICATE) {
             val svm: SettingsViewModel = hiltViewModel()
             StudentEnrollmentCertificateScreen(onBack = { nav.popBackStack() }, onRequest = { nav.navigate(Routes.STUDENT_ENROLLMENT_FORM) }, settingsVm = svm)
@@ -454,7 +473,11 @@ fun AppNavHost() {
         composable(Routes.MY_APPOINTMENTS) { 
             val mvm: MedicalAppointmentViewModel = hiltViewModel()
             val svm: SettingsViewModel = hiltViewModel()
+<<<<<<< HEAD
             MyAppointmentsScreen(onBack = { nav.popBackStack() }, mvm, svm) 
+=======
+            MyAppointmentsScreen(onBack = { nav.popBackStack() }, medicalVm = mvm, settingsVm = svm) 
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         }
         composable(Routes.ID_REPLACEMENT) { 
             val pvm: StudentProceduresViewModel = hiltViewModel()
@@ -485,10 +508,18 @@ fun AppNavHost() {
             val id = back.arguments?.getString("subjectId") ?: ""
             SubjectDetailScreen(subjectId = id, term = t, onBack = { nav.popBackStack() })
         }
+<<<<<<< HEAD
+=======
+        
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         composable(Routes.SETTINGS) { 
             val svm: SettingsViewModel = hiltViewModel()
             SettingsScreen(onBack = { nav.popBackStack() }, onLogout = { authVM.logout() }, vm = svm) 
         }
+<<<<<<< HEAD
+=======
+        
+>>>>>>> ff9f7f7 (fix(app): ajusta flujo de alumno y autenticación, corrige navegación principal y consolida soporte de red, seguridad y utilidades base del sistema)
         composable(Routes.ANNOUNCEMENTS) { 
             val svm: SettingsViewModel = hiltViewModel()
             AnnouncementsScreen(onBack = { nav.popBackStack() }, settingsVm = svm) 
