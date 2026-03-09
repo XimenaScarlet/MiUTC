@@ -1,5 +1,6 @@
 package com.example.univapp.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.univapp.data.Session
@@ -8,16 +9,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.SetOptions
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+@HiltViewModel
+class SOSViewModel @Inject constructor(
+    private val locationHelper: LocationHelper,
+    private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : ViewModel() {
+    private val TAG = "SOS_DEBUG"
     private var trackingJob: Job? = null
 
     private val _isTracking = MutableStateFlow(false)
@@ -27,32 +35,26 @@ class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
     fun setOfflineSession(session: Session?) { this.offlineSession = session }
 
     fun startTracking() {
+        if (trackingJob != null) return
+        
         val uid = auth.currentUser?.uid ?: offlineSession?.userId ?: return
         val email = auth.currentUser?.email ?: offlineSession?.email ?: "Usuario"
-
-        if (trackingJob != null) return
+        
+        Log.d(TAG, "Iniciando proceso SOS. UID: $uid, Email: $email")
         _isTracking.value = true
 
-        viewModelScope.launch {
-            // Buscamos el nombre en la colección de alumnos. 
-            // Si el ID de auth no coincide, intentamos buscar por correo.
+        trackingJob = viewModelScope.launch {
+            // 1. Obtener nombre del alumno
             var nombreAlumno = "Alumno"
             try {
-                // Intento 1: Buscar por UID (si se guardó así)
-                val docById = db.collection("alumnos").document(uid).get().await()
-                if (docById.exists()) {
-                    nombreAlumno = docById.getString("nombre") ?: "Alumno"
-                } else {
-                    // Intento 2: Buscar por correo (común si se importaron por Excel)
-                    val query = db.collection("alumnos").whereEqualTo("correo", email).get().await()
-                    if (!query.isEmpty) {
-                        nombreAlumno = query.documents[0].getString("nombre") ?: "Alumno"
-                    }
-                }
+                val doc = db.collection("alumnos").document(uid).get().await()
+                nombreAlumno = doc.getString("nombre") ?: email.substringBefore("@")
+                Log.d(TAG, "Nombre identificado: $nombreAlumno")
             } catch (e: Exception) {
-                nombreAlumno = email.substringBefore("@")
+                Log.e(TAG, "Error obteniendo nombre de alumno: ${e.message}")
             }
 
+            // 2. Crear documento inicial SOS (AWAIT)
             val initialData = hashMapOf(
                 "alumnoId" to uid,
                 "alumnoNombre" to nombreAlumno,
@@ -61,18 +63,36 @@ class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
                 "status" to "active",
                 "timestamp" to FieldValue.serverTimestamp()
             )
-            db.collection("sos_alerts").document(uid).set(initialData)
-        }
 
-        trackingJob = viewModelScope.launch {
+            try {
+                db.collection("sos_alerts").document(uid)
+                    .set(initialData, SetOptions.merge())
+                    .await()
+                Log.d(TAG, "Documento SOS inicial creado/actualizado exitosamente.")
+            } catch (e: Exception) {
+                Log.e(TAG, "ERROR CRÍTICO: No se pudo crear el documento SOS: ${e.message}")
+                _isTracking.value = false
+                return@launch
+            }
+
+            // 3. Loop de actualización de ubicación
             while (_isTracking.value) {
                 val latLng = locationHelper.getCurrentLocation()
                 if (latLng != null) {
-                    val updateData = mapOf(
+                    val updateData = hashMapOf(
                         "location" to GeoPoint(latLng.latitude, latLng.longitude),
                         "timestamp" to FieldValue.serverTimestamp()
                     )
-                    db.collection("sos_alerts").document(uid).update(updateData)
+                    try {
+                        db.collection("sos_alerts").document(uid)
+                            .set(updateData, SetOptions.merge())
+                            .await()
+                        Log.d(TAG, "Ubicación actualizada: ${latLng.latitude}, ${latLng.longitude}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error actualizando ubicación en Firestore: ${e.message}")
+                    }
+                } else {
+                    Log.w(TAG, "LocationHelper devolvió NULL. No se pudo obtener la ubicación en este ciclo.")
                 }
                 delay(5000)
             }
@@ -81,15 +101,26 @@ class SOSViewModel(private val locationHelper: LocationHelper) : ViewModel() {
 
     fun stopTracking() {
         val uid = auth.currentUser?.uid ?: offlineSession?.userId ?: return
+        Log.d(TAG, "Deteniendo seguimiento SOS para UID: $uid")
+        
         _isTracking.value = false
         trackingJob?.cancel()
         trackingJob = null
         
-        db.collection("sos_alerts").document(uid).update(
-            "active", false,
-            "status", "ended",
-            "timestamp", FieldValue.serverTimestamp()
-        )
+        viewModelScope.launch {
+            try {
+                db.collection("sos_alerts").document(uid).update(
+                    mapOf(
+                        "active" to false,
+                        "status" to "ended",
+                        "timestamp" to FieldValue.serverTimestamp()
+                    )
+                ).await()
+                Log.d(TAG, "SOS marcado como inactivo correctamente.")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error al cerrar el SOS en Firestore: ${e.message}")
+            }
+        }
     }
 
     override fun onCleared() {
